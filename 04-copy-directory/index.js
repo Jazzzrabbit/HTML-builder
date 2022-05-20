@@ -11,17 +11,17 @@ const readFilesFromDir = async (path) => {
 };
 
 readFilesFromDir(path.join(__dirname, 'files'))
-  .then(fs.mkdir(path.join(__dirname, 'newFiles'), {recursive: true}, (err) => {
+  .then(fs.mkdir(path.join(__dirname, 'files-copy'), {recursive: true}, (err) => {
     if (err) console.error(err);
-    console.log('"newFiles" folder was successfully created.');
+    console.log('"files-copy" folder was successfully created.');
   }))
   .then((data) => {
     data.forEach(item => {
       fs.readFile(path.join(__dirname, 'files', item), (err, data) => {
         if (err) console.error(err);
-        fs.writeFile(path.join(__dirname, 'newFiles', item), data, (err) => {
+        fs.writeFile(path.join(__dirname, 'files-copy', item), data, (err) => {
           if (err) console.error(err);
-          console.log(`File "${item}" was successfully copied to newFiles.`);
+          console.log(`File "${item}" was successfully copied to files-copy.`);
         });
       });
     });
