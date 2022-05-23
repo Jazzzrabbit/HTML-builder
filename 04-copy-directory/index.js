@@ -1,61 +1,74 @@
 const fs = require('fs');
 const path = require('path');
 
-const readFilesFromDir = async (path) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(path, (err, data) => {
-      if (err) reject(err.message);
-      resolve(data);
+const pathToDir = path.join(__dirname, 'files');
+const pathToDist = path.join(__dirname, 'files-copy');
+
+const makeFolder = async () => {
+  return new Promise((res, rej) => {
+    fs.mkdir(path.join(__dirname, 'files-copy'), {recursive: true}, err => {
+      if (err) rej(err.message);
+      res(console.log('Folder made.'));
     });
   });
 };
 
-const createFolder = async (path) => {
-  return new Promise((resolve, reject) => {
-    fs.mkdir(path, {recursive: true}, (err) => {
-      if (err) reject(err.message);
-      resolve();
+const copyFolders = async (pathToDir) => {
+  return new Promise((res, rej) => {
+    fs.readdir(pathToDir, (err, files) => {
+      if (err) rej(err.message);
+      files.forEach(file => {
+        let currentPath = pathToDir + '/' + file;
+        fs.stat(currentPath, (err, stats) => {
+          if (err) console.log(err);
+          if (stats.isDirectory()) {
+            let deepPath = pathToDir + '/' + file;
+            fs.mkdir(deepPath.replace(/files/, 'files-copy'), {recursive: true}, (err) => {
+              if (err) console.log(err);
+              console.log('folder copied.');
+            });
+            currentPath = deepPath;
+            copyFolders(deepPath);
+          }
+          else {
+            fs.readFile(currentPath, 'utf8', (err, data) => {
+              if (err) console.log(err);
+              fs.writeFile(currentPath.replace(/files/, 'files-copy'), data, (err) => {
+                if (err) console.log(err);
+                res(console.log('copied'));
+              });
+            });
+          }
+        });
+      });
     });
   });
 };
 
-const cleanFolder = async () => {
+const cleanFolder = async (pathToDist) => {
   return new Promise((resolve, reject) => {
-    fs.readdir(path.join(__dirname, 'files-copy'), (err, files) => {
+    fs.readdir(pathToDist, (err, files) => {
       if (err) reject(err.message);
       files.forEach(exFile => {
-        fs.rm(path.join(__dirname, 'files-copy', exFile), (err) => {
-          if (err) console.error(err);
+        let currentPath = pathToDist + '/' + exFile;
+        fs.stat(currentPath, (err, stats) => {
+          if (err) console.log(err);
+          if (stats.isDirectory()) {
+            const deepPath = pathToDist + '/' + exFile;
+            currentPath = deepPath;
+            cleanFolder(deepPath);
+          } else {
+            fs.rm(currentPath, (err) => {
+              if (err) console.log('err is here');
+              resolve();
+            });
+          }
         });
-        resolve();
       });
     });
   });
 };
 
-readFilesFromDir(path.join(__dirname, 'files'))
-  .then(createFolder(path.join(__dirname, 'files-copy')))
-  .then(cleanFolder())
-  .then((data) => {
-    data.forEach(file => {
-      fs.stat(path.join(__dirname, 'files', file), (err, stats) => {
-        if (err) console.error(err);
-        if (stats.isFile()) {
-          fs.readFile(path.join(__dirname, 'files', file), 'utf8', (err, data) => {
-            if (err) console.error(err);
-            fs.writeFile(path.join(__dirname, 'files-copy', file), data, (err) => {
-              if (err) console.error(err);
-              console.log(`${file} was copied to files-copy folder.`);
-            });
-          });   
-        }
-      });
-    });
-  });
-
-
-  
-
-  
-
-     
+makeFolder()
+  .then(cleanFolder(pathToDist))
+  .then(copyFolders(pathToDir));
