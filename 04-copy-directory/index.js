@@ -8,7 +8,7 @@ const makeFolder = async () => {
   return new Promise((res, rej) => {
     fs.mkdir(path.join(__dirname, 'files-copy'), {recursive: true}, err => {
       if (err) rej(err.message);
-      res(console.log('Folder made.'));
+      res();
     });
   });
 };
@@ -25,7 +25,6 @@ const copyFolders = async (pathToDir) => {
             let deepPath = pathToDir + '/' + file;
             fs.mkdir(deepPath.replace(/files/, 'files-copy'), {recursive: true}, (err) => {
               if (err) console.log(err);
-              console.log('folder copied.');
             });
             currentPath = deepPath;
             copyFolders(deepPath);
@@ -35,7 +34,7 @@ const copyFolders = async (pathToDir) => {
               if (err) console.log(err);
               fs.writeFile(currentPath.replace(/files/, 'files-copy'), data, (err) => {
                 if (err) console.log(err);
-                res(console.log('copied'));
+                res();
               });
             });
           }
@@ -59,7 +58,7 @@ const cleanFolder = async (pathToDist) => {
             cleanFolder(deepPath);
           } else {
             fs.rm(currentPath, (err) => {
-              if (err) console.log('err is here');
+              if (err) console.log(err);
               resolve();
             });
           }
@@ -71,4 +70,5 @@ const cleanFolder = async (pathToDist) => {
 
 makeFolder()
   .then(cleanFolder(pathToDist))
-  .then(copyFolders(pathToDir));
+  .then(copyFolders(pathToDir))
+  .then(console.log('Files were copied to files-copy folder.'));
