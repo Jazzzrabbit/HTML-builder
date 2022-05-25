@@ -24,11 +24,11 @@ const copyFolders = async (pathToAssets) => {
     fs.readdir(pathToAssets, (err, files) => {
       if (err) rej(err.message);
       files.forEach(file => {
-        let currentPath = pathToAssets + '/' + file;
+        let currentPath = path.join(pathToAssets, file);
         fs.stat(currentPath, (err, stats) => {
           if (err) console.log(err);
           if (stats.isDirectory()) {
-            let deepPath = pathToAssets + '/' + file;
+            let deepPath = path.join(pathToAssets, file);
             fs.mkdir(deepPath.replace(/assets/, 'project-dist/assets'), {recursive: true}, (err) => {
               if (err) console.log(err);
             });
@@ -55,11 +55,11 @@ const cleanFolder = async (pathToDist) => {
     fs.readdir(pathToDist, (err, files) => {
       if (err) reject(err.message);
       files.forEach(exFile => {
-        let currentPath = pathToDist + '/' + exFile;
+        let currentPath = path.join(pathToDist, exFile);
         fs.stat(currentPath, (err, stats) => {
           if (err) console.log(err);
           if (stats.isDirectory()) {
-            const deepPath = pathToDist + '/' + exFile;
+            const deepPath = path.join(pathToDist, exFile);
             currentPath = deepPath;
             cleanFolder(deepPath);
           } else {

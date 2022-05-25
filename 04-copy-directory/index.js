@@ -18,11 +18,11 @@ const copyFolders = async (pathToDir) => {
     fs.readdir(pathToDir, (err, files) => {
       if (err) rej(err.message);
       files.forEach(file => {
-        let currentPath = pathToDir + '/' + file;
+        let currentPath = path.join(pathToDir, file);
         fs.stat(currentPath, (err, stats) => {
           if (err) console.log(err);
           if (stats.isDirectory()) {
-            let deepPath = pathToDir + '/' + file;
+            let deepPath = path.join(pathToDir, file);
             fs.mkdir(deepPath.replace(/files/, 'files-copy'), {recursive: true}, (err) => {
               if (err) console.log(err);
             });
@@ -49,11 +49,11 @@ const cleanFolder = async (pathToDist) => {
     fs.readdir(pathToDist, (err, files) => {
       if (err) reject(err.message);
       files.forEach(exFile => {
-        let currentPath = pathToDist + '/' + exFile;
+        let currentPath = path.join(pathToDist, exFile);
         fs.stat(currentPath, (err, stats) => {
           if (err) console.log(err);
           if (stats.isDirectory()) {
-            const deepPath = pathToDist + '/' + exFile;
+            const deepPath = path.join(pathToDist, exFile);
             currentPath = deepPath;
             cleanFolder(deepPath);
           } else {
