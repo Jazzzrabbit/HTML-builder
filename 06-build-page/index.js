@@ -145,7 +145,7 @@ const replaceTags = async () => {
   
   for (let i = 0; i < tags.length; i++) {
     const tagName = tags[i].replace(/\.html/, '');
-    const regex = new RegExp(`{{${tagName}}}`);
+    const regex = new RegExp(`{{${tagName}}}`, 'gi');
     const article = await getArticles(tags[i]);
     
     html = html.replace(regex, article);
